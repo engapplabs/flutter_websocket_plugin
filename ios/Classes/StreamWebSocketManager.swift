@@ -16,6 +16,8 @@ class StreamWebSocketManager: NSObject, WebSocketDelegate {
     var messageCallback: ((_ data: String)-> ())?
     var closeCallback: ((_ data: String)-> ())?
     var conectedCallback: ((_ data: Bool)-> ())?
+    
+    var enableRetries: Bool = true
 
     override init () {
 
@@ -30,13 +32,14 @@ class StreamWebSocketManager: NSObject, WebSocketDelegate {
     
     func areUpdateEnabled() -> Bool {return self.updatesEnabled}
     
-    func create(url: String, header: Dictionary<String,String>?, enableCompression: Bool?, disableSSL: Bool?) {
+    func create(url: String, header: Dictionary<String,String>?, enableCompression: Bool?, disableSSL: Bool?, enableRetries: Bool) {
         var request = URLRequest(url: URL(string: url)!)
         if(header != nil) {
             for key in header!.keys {
                 request.setValue((header![key]), forHTTPHeaderField: key)
             }
         }
+        self.enableRetries = enableRetries
         print(request.allHTTPHeaderFields as Any)
         ws = WebSocket(request: request)
         ws?.delegate = self
@@ -88,17 +91,21 @@ class StreamWebSocketManager: NSObject, WebSocketDelegate {
     func onClose() {
         ws?.onDisconnect = { (error: Error?) in
             print("close \(String(describing: error).debugDescription)")
-            if(self.conectedCallback != nil) {
-                (self.conectedCallback!)(false)
-            }
-            if(self.closeCallback != nil) {
-                if(error != nil) {
-                    if(error is WSError) {
-                        print("Error message: \((error as! WSError).message)")
+            if(self.enableRetries) {
+                self.connect()
+            } else {
+                if(self.conectedCallback != nil) {
+                    (self.conectedCallback!)(false)
+                }
+                if(self.closeCallback != nil) {
+                    if(error != nil) {
+                        if(error is WSError) {
+                            print("Error message: \((error as! WSError).message)")
+                        }
+                        (self.closeCallback!)("false")
+                    } else {
+                        (self.closeCallback!)("true")
                     }
-                    (self.closeCallback!)("false")
-                } else {
-                    (self.closeCallback!)("true")
                 }
             }
         }
