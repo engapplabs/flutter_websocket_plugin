@@ -1,0 +1,29 @@
+PODS:
+  - Flutter (1.0.0)
+  - Starscream (3.1.1)
+  - websocket_manager (0.0.1):
+    - Flutter
+    - Starscream (~> 3.1.1)
+
+DEPENDENCIES:
+  - Flutter (from `.symlinks/flutter/ios-release`)
+  - websocket_manager (from `.symlinks/plugins/websocket_manager/ios`)
+
+SPEC REPOS:
+  trunk:
+    - Starscream
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: ".symlinks/flutter/ios-release"
+  websocket_manager:
+    :path: ".symlinks/plugins/websocket_manager/ios"
+
+SPEC CHECKSUMS:
+  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  Starscream: 4bb2f9942274833f7b4d296a55504dcfc7edb7b0
+  websocket_manager: cadb93f3b88cf3f5d60fca8629824c1b50f30e1b
+
+PODFILE CHECKSUM: 2ef0a40072d836b2e62fb7fcb125a5e514afe953
+
+COCOAPODS: 1.8.3
