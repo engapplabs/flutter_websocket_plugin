@@ -88,6 +88,26 @@ class _MyAppState extends State<MyApp> {
                     }
                   },
                 ),
+                RaisedButton(
+                  child: Text('ECHO TEST'),
+                  onPressed: () => WebsocketManager.echoText(),
+                ),
+                RaisedButton(
+                  child: Text('TEST'),
+                  onPressed: () {
+                    socket = WebsocketManager(
+                      'ws://rel.maju.com.br:9000/ws/v1/driver',
+                      <String, String>{
+                        'Authorization':
+                            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Imx1YW5oc3NhQGdtYWlsLmNvbSIsImlkIjoiNjY2OTVlOGUtODM4OC00MWM3LWEyNmEtYzVkZmQ4YTFmOWYwIn0.ML6jTvFDYHtYaJSwMg38FPi7k3f0gwjQ3Ujf7DC4Gto',
+                        'score': '500',
+                        'category': '0',
+                        'car_plate': 'TEST0000',
+                        'driver_id': '66695e8e-8388-41c7-a26a-c5dfd8a1f9f0',
+                      },
+                    );
+                  },
+                ),
               ],
             ),
             TextField(

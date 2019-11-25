@@ -64,6 +64,13 @@ public class SwiftWebsocketManagerPlugin: NSObject, FlutterPlugin {
         print(message)
         streamWebSocketManager.send(string: message)
     }
+    else if(call.method == "autoRetry") {
+        var retry = call.arguments as? Bool
+        if(retry == nil) {
+            retry = true
+        }
+        streamWebSocketManager.enableRetries = retry!
+    }
     else if(call.method == "echoTest"){
         streamWebSocketManager.echoTest()
         result("")

@@ -40,5 +40,6 @@ android {
 }
 
 dependencies {
+    implementation("com.squareup.okhttp3:okhttp:4.2.1")
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }

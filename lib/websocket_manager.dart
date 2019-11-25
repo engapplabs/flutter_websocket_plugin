@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 
 const _PLUGIN_NAME = 'websocket_manager';
-const _EVENT_CHANNEL_MESSAGE = '$_PLUGIN_NAME/message';
+const _EVENT_CHANNEL_MESSAGE = 'websocket_manager/message';
 const _EVENT_CHANNEL_DONE = '$_PLUGIN_NAME/done';
 const _METHOD_CHANNEL_CREATE = 'create';
 const _METHOD_CHANNEL_CONNECT = 'connect';
@@ -12,6 +12,7 @@ const _METHOD_CHANNEL_DISCONNECT = 'disconnect';
 const _METHOD_CHANNEL_ON_MESSAGE = 'onMessage';
 const _METHOD_CHANNEL_ON_DONE = 'onDone';
 const _METHOD_CHANNEL_SEND = 'send';
+const _METHOD_CHANNEL_TEST_ECHO = 'echoTest';
 
 class WebsocketManager {
   WebsocketManager(this.url, [this.header]) {
@@ -19,13 +20,13 @@ class WebsocketManager {
   }
 
   final String url;
-  final Map<String,String> header;
+  final Map<String, String> header;
 
   static const MethodChannel _channel = const MethodChannel(_PLUGIN_NAME);
   static const EventChannel _eventChannelMessage =
-    const EventChannel(_EVENT_CHANNEL_MESSAGE);
+      const EventChannel(_EVENT_CHANNEL_MESSAGE);
   static const EventChannel _eventChannelClose =
-    const EventChannel(_EVENT_CHANNEL_DONE);
+      const EventChannel(_EVENT_CHANNEL_DONE);
   static StreamSubscription _onMessageSubscription;
   static StreamSubscription _onCloseSubscription;
   static Stream<dynamic> _eventsMessage;
@@ -35,6 +36,12 @@ class WebsocketManager {
 
   static bool _keepAlive = false;
 
+  static Future<void> echoText() async {
+    final dynamic result = await _channel.invokeMethod
+      (_METHOD_CHANNEL_TEST_ECHO);
+    print(result);
+  }
+
   Future<void> _create() {
     print(url);
     print(header);
@@ -42,17 +49,24 @@ class WebsocketManager {
       'url': url,
       'header': header,
     });
+    _onMessage();
+    _onClose();
   }
 
-  Future<void> connect() {
-    _channel.invokeMethod(_METHOD_CHANNEL_CONNECT);
+  Future<void> connect() async {
+    await _channel.invokeMethod(_METHOD_CHANNEL_CONNECT);
+    _onMessage();
   }
 
   void close() {
     _keepAlive = false;
-    if(_onMessageSubscription != null) {
+    if (_onMessageSubscription != null) {
       _onMessageSubscription.cancel();
       _onMessageSubscription = null;
+    }
+    if (_onCloseSubscription != null) {
+      _onCloseSubscription.cancel();
+      _onCloseSubscription = null;
     }
     _channel.invokeMethod<String>(_METHOD_CHANNEL_DISCONNECT);
   }
@@ -65,13 +79,16 @@ class WebsocketManager {
     _messageCallback = callback;
     _startMessageServices().then((_) {
       _onMessage();
-      _onMessageSubscription = _eventsMessage.listen(_messageListener,
-        onDone: () {
-          if(_closeCallback != null) {
+      _onMessageSubscription =
+        _eventsMessage.listen(_messageListener,onError: (dynamic e) {
+          print("🎫 ERROR FILHA DA PUTA $e");
+        }, onDone:
+          () {
+            print("🎫 DONE FILHA DA PUTA");
+          if (_closeCallback != null) {
             _closeCallback('CLOSED');
           }
-        },
-        cancelOnError: true);
+        }, cancelOnError: true);
     });
   }
 
@@ -91,8 +108,9 @@ class WebsocketManager {
   void _onMessage() {
     _keepAlive = true;
     if (_eventsMessage == null) {
-      _eventsMessage = _eventChannelMessage.receiveBroadcastStream().where(
-          (_) => _keepAlive);
+      _eventsMessage = _eventChannelMessage.receiveBroadcastStream()
+        .asBroadcastStream();
+      _eventsMessage.listen(_messageListener);
     }
   }
 
@@ -103,20 +121,21 @@ class WebsocketManager {
 
   void _onClose() {
     if (_eventsClose == null) {
-      _eventsClose = _eventChannelClose.receiveBroadcastStream().where(
-          (_) => true);
+      _eventsClose = _eventChannelClose.receiveBroadcastStream();
+      _eventsClose.listen(_closeListener);
     }
   }
 
   void _messageListener(dynamic message) {
-    if(_messageCallback != null) {
+    print('Received message: $message');
+    if (_messageCallback != null) {
       _messageCallback(message);
     }
   }
 
   void _closeListener(dynamic message) {
     print(message);
-    if(_closeCallback != null) {
+    if (_closeCallback != null) {
       _closeCallback(message);
     }
   }
