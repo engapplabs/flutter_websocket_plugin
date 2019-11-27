@@ -71,6 +71,8 @@ class WebsocketManagerPlugin(registrar: Registrar): MethodCallHandler {
       MethodName.CREATE -> {
         val url: String? = call.argument<String>("url")
         val header:Map<String,String>? = call.argument<Map<String,String>>("header")
+        Log.i("WebsocketManagerPlugin","url: $url")
+        Log.i("WebsocketManagerPlugin","header: $header")
         websocketManager.create(url!!, header)
         websocketManager.messageCallback = fun (msg: String) {
           Log.i("WebsocketManagerPlugin","sending $msg")

@@ -37,8 +37,8 @@ class WebsocketManager {
   static bool _keepAlive = false;
 
   static Future<void> echoText() async {
-    final dynamic result = await _channel.invokeMethod
-      (_METHOD_CHANNEL_TEST_ECHO);
+    final dynamic result =
+        await _channel.invokeMethod(_METHOD_CHANNEL_TEST_ECHO);
     print(result);
   }
 
@@ -79,16 +79,12 @@ class WebsocketManager {
     _messageCallback = callback;
     _startMessageServices().then((_) {
       _onMessage();
-      _onMessageSubscription =
-        _eventsMessage.listen(_messageListener,onError: (dynamic e) {
-          print("🎫 ERROR FILHA DA PUTA $e");
-        }, onDone:
-          () {
-            print("🎫 DONE FILHA DA PUTA");
-          if (_closeCallback != null) {
-            _closeCallback('CLOSED');
-          }
-        }, cancelOnError: true);
+      _onMessageSubscription = _eventsMessage
+          .listen(_messageListener, onError: (dynamic e) {}, onDone: () {
+        if (_closeCallback != null) {
+          _closeCallback('CLOSED');
+        }
+      }, cancelOnError: true);
     });
   }
 
@@ -108,8 +104,8 @@ class WebsocketManager {
   void _onMessage() {
     _keepAlive = true;
     if (_eventsMessage == null) {
-      _eventsMessage = _eventChannelMessage.receiveBroadcastStream()
-        .asBroadcastStream();
+      _eventsMessage =
+          _eventChannelMessage.receiveBroadcastStream().asBroadcastStream();
       _eventsMessage.listen(_messageListener);
     }
   }
