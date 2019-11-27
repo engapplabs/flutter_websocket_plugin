@@ -128,6 +128,7 @@ class StreamWebSocketManager(private val activity: Activity): WebSocketListener(
     }
 
     fun send(msg: String) {
+        Log.i("StreamWebSocketManager","⭕️ -> sending $msg")
         ws?.send(msg)
     }
 }
