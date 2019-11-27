@@ -20,17 +20,18 @@ class EventStreamHandler(onCancelCallback: () -> Unit) : EventChannel.StreamHand
 //        this.sink = eventSink
 //    }
     override fun onListen(arguments: Any?, eventSink: EventChannel.EventSink?) {
+        Log.i("onListen", "arguments: $arguments")
         Log.i("EventStreamHandler","🔴 event sink")
         this.sink = eventSink
     }
 
-    override fun onCancel(arguments: Any) {
+    override fun onCancel(arguments: Any?) {
         Log.i("EventStreamHandler","onCancel")
         this.sink = null
         onCancelCallback()
     }
 
-    fun send(data: Any){
+    fun send(data: Any?){
         if (this.sink != null) {
             Log.i("EventStreamHandler","✅ sink is not null")
             try {

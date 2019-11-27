@@ -3,7 +3,6 @@ package br.com.engapp.websocket_manager
 import EventStreamHandler
 import android.content.Context
 import android.util.Log
-import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodCall
@@ -12,7 +11,6 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
 
-
 class ChannelName {
   companion object {
     const val PLUGIN_NAME = "websocket_manager"
@@ -20,6 +18,7 @@ class ChannelName {
     const val DONE = "websocket_manager/done"
   }
 }
+
 class MethodName {
   companion object {
     const val PLATFORM_VERSION = "getPlatformVersion"
