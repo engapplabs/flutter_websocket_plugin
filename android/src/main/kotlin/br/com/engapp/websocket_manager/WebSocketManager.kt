@@ -120,7 +120,7 @@ class StreamWebSocketManager(private val activity: Activity): WebSocketListener(
         Log.i("StreamWebSocketManager","method: ${req.method}")
         Log.i("StreamWebSocketManager","url: ${req.url}")
         ws = client.newWebSocket(req,this)
-        client.dispatcher.executorService.shutdown()
+//        client.dispatcher.executorService.shutdown()
     }
 
     fun disconnect() {
@@ -129,6 +129,7 @@ class StreamWebSocketManager(private val activity: Activity): WebSocketListener(
 
     fun send(msg: String) {
         Log.i("StreamWebSocketManager","⭕️ -> sending $msg")
+        Log.i("StreamWebSocketManager","⭕️ -> ws is null? ${ws == null}")
         ws?.send(msg)
     }
 }
