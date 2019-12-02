@@ -55,6 +55,13 @@ class StreamWebSocketManager(private val activity: Activity): WebSocketListener(
         //
     }
 
+    override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
+        Log.i("StreamWebSocketManager","🐞 onFailure")
+        Log.i("StreamWebSocketManager","🐞 ${t.message}")
+        t.printStackTrace()
+        ws?.close(1000,null)
+    }
+
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
         Log.i("StreamWebSocketManager","onClosing")
         activity.runOnUiThread {
