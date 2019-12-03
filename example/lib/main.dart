@@ -1,9 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'dart:async';
 
-import 'package:flutter/services.dart';
 import 'package:websocket_manager/websocket_manager.dart';
 
 void main() => runApp(MyApp());

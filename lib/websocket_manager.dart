@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/services.dart';
 
@@ -34,7 +33,7 @@ class WebsocketManager {
   static Function(dynamic) _messageCallback;
   static Function(dynamic) _closeCallback;
 
-  static bool _keepAlive = false;
+  // static bool _keepAlive = false;
 
   static Future<void> echoText() async {
     final dynamic result =
@@ -42,10 +41,10 @@ class WebsocketManager {
     print(result);
   }
 
-  Future<void> _create() {
+  Future<void> _create() async {
     print(url);
     print(header);
-    _channel.invokeMethod(_METHOD_CHANNEL_CREATE, <String, dynamic>{
+    await _channel.invokeMethod(_METHOD_CHANNEL_CREATE, <String, dynamic>{
       'url': url,
       'header': header,
     });
@@ -59,7 +58,7 @@ class WebsocketManager {
   }
 
   void close() {
-    _keepAlive = false;
+    // _keepAlive = false;
     if (_onMessageSubscription != null) {
       _onMessageSubscription.cancel();
       _onMessageSubscription = null;
@@ -71,11 +70,11 @@ class WebsocketManager {
     _channel.invokeMethod<String>(_METHOD_CHANNEL_DISCONNECT);
   }
 
-  Future<void> send(String message) {
+  void send(String message) {
     _channel.invokeMethod(_METHOD_CHANNEL_SEND, message);
   }
 
-  Future<void> onMessage(Function(dynamic) callback) {
+  void onMessage(Function(dynamic) callback) {
     _messageCallback = callback;
     _startMessageServices().then((_) {
       _onMessage();
@@ -88,7 +87,7 @@ class WebsocketManager {
     });
   }
 
-  Future<void> onClose(Function(dynamic) callback) {
+  void onClose(Function(dynamic) callback) {
     _closeCallback = callback;
     _startCloseServices().then((_) {
       _onClose();
@@ -102,7 +101,7 @@ class WebsocketManager {
   }
 
   void _onMessage() {
-    _keepAlive = true;
+    // _keepAlive = true;
     if (_eventsMessage == null) {
       _eventsMessage =
           _eventChannelMessage.receiveBroadcastStream().asBroadcastStream();
