@@ -2,17 +2,18 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
-const _PLUGIN_NAME = 'websocket_manager';
-const _EVENT_CHANNEL_MESSAGE = 'websocket_manager/message';
-const _EVENT_CHANNEL_DONE = '$_PLUGIN_NAME/done';
-const _METHOD_CHANNEL_CREATE = 'create';
-const _METHOD_CHANNEL_CONNECT = 'connect';
-const _METHOD_CHANNEL_DISCONNECT = 'disconnect';
-const _METHOD_CHANNEL_ON_MESSAGE = 'onMessage';
-const _METHOD_CHANNEL_ON_DONE = 'onDone';
-const _METHOD_CHANNEL_SEND = 'send';
-const _METHOD_CHANNEL_TEST_ECHO = 'echoTest';
+const String _PLUGIN_NAME = 'websocket_manager';
+const String _EVENT_CHANNEL_MESSAGE = 'websocket_manager/message';
+const String _EVENT_CHANNEL_DONE = '$_PLUGIN_NAME/done';
+const String _METHOD_CHANNEL_CREATE = 'create';
+const String _METHOD_CHANNEL_CONNECT = 'connect';
+const String _METHOD_CHANNEL_DISCONNECT = 'disconnect';
+const String _METHOD_CHANNEL_ON_MESSAGE = 'onMessage';
+const String _METHOD_CHANNEL_ON_DONE = 'onDone';
+const String _METHOD_CHANNEL_SEND = 'send';
+const String _METHOD_CHANNEL_TEST_ECHO = 'echoTest';
 
+/// Provides an easy way to create native websocket connection.
 class WebsocketManager {
   WebsocketManager(this.url, [this.header]) {
     _create();
@@ -21,13 +22,13 @@ class WebsocketManager {
   final String url;
   final Map<String, String> header;
 
-  static const MethodChannel _channel = const MethodChannel(_PLUGIN_NAME);
+  static const MethodChannel _channel = MethodChannel(_PLUGIN_NAME);
   static const EventChannel _eventChannelMessage =
-      const EventChannel(_EVENT_CHANNEL_MESSAGE);
+      EventChannel(_EVENT_CHANNEL_MESSAGE);
   static const EventChannel _eventChannelClose =
-      const EventChannel(_EVENT_CHANNEL_DONE);
-  static StreamSubscription _onMessageSubscription;
-  static StreamSubscription _onCloseSubscription;
+      EventChannel(_EVENT_CHANNEL_DONE);
+  static StreamSubscription<dynamic> _onMessageSubscription;
+  static StreamSubscription<dynamic> _onCloseSubscription;
   static Stream<dynamic> _eventsMessage;
   static Stream<dynamic> _eventsClose;
   static Function(dynamic) _messageCallback;
@@ -37,14 +38,15 @@ class WebsocketManager {
 
   static Future<void> echoText() async {
     final dynamic result =
-        await _channel.invokeMethod(_METHOD_CHANNEL_TEST_ECHO);
+        await _channel.invokeMethod<dynamic>(_METHOD_CHANNEL_TEST_ECHO);
     print(result);
   }
 
   Future<void> _create() async {
     print(url);
     print(header);
-    await _channel.invokeMethod(_METHOD_CHANNEL_CREATE, <String, dynamic>{
+    await _channel
+        .invokeMethod<dynamic>(_METHOD_CHANNEL_CREATE, <String, dynamic>{
       'url': url,
       'header': header,
     });
@@ -52,11 +54,17 @@ class WebsocketManager {
     _onClose();
   }
 
+  /// Creates a new WebSocket connection after instantiated [WebsocketManager].
+  ///
+  /// From this point the messages are being listened, but you need to
+  /// call [onMessage] or [onClose] functions, providing a callback function,
+  /// to be able to listen data sent from the server and a done event.
   Future<void> connect() async {
-    await _channel.invokeMethod(_METHOD_CHANNEL_CONNECT);
+    await _channel.invokeMethod<dynamic>(_METHOD_CHANNEL_CONNECT);
     _onMessage();
   }
 
+  /// Closes the web socket connection.
   void close() {
     // _keepAlive = false;
     if (_onMessageSubscription != null) {
@@ -70,10 +78,18 @@ class WebsocketManager {
     _channel.invokeMethod<String>(_METHOD_CHANNEL_DISCONNECT);
   }
 
+  /// Send a [String] message to the connected WebSocket.
   void send(String message) {
-    _channel.invokeMethod(_METHOD_CHANNEL_SEND, message);
+    _channel.invokeMethod<dynamic>(_METHOD_CHANNEL_SEND, message);
   }
 
+  /// Adds a callback handler to this WebSocket sent data.
+  ///
+  /// On each data event from this WebSocket, the subscriber's [onMessage] handler
+  /// is called. If [onMessage] is `null`, nothing happens.
+  ///
+  /// If you received any message before setting this callback handler
+  /// you are not going to received past data.
   void onMessage(Function(dynamic) callback) {
     _messageCallback = callback;
     _startMessageServices().then((_) {
@@ -87,6 +103,13 @@ class WebsocketManager {
     });
   }
 
+  /// Adds a callback handler to this WebSocket close event.
+  ///
+  /// If this WebSocket closes a done event is triggered, the [onClose] handler is
+  /// called. If [onClose] is `null`, nothing happens.
+  ///
+  /// If you are not listening to this close event you are not going to be able
+  /// to know if the connection was closed.
   void onClose(Function(dynamic) callback) {
     _closeCallback = callback;
     _startCloseServices().then((_) {

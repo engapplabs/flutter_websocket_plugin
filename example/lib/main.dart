@@ -15,7 +15,6 @@ class _MyAppState extends State<MyApp> {
     super.initState();
   }
 
-  int _currentIndex = 0;
   final TextEditingController _urlController =
       TextEditingController(text: 'wss://echo.websocket.org');
   final TextEditingController _messageController = TextEditingController();
