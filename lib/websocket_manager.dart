@@ -34,17 +34,15 @@ class WebsocketManager {
   static Function(dynamic) _messageCallback;
   static Function(dynamic) _closeCallback;
 
-  // static bool _keepAlive = false;
-
-  static Future<void> echoText() async {
+  static Future<void> echoTest() async {
     final dynamic result =
         await _channel.invokeMethod<dynamic>(_METHOD_CHANNEL_TEST_ECHO);
     print(result);
   }
 
   Future<void> _create() async {
-    print(url);
-    print(header);
+    // print(url);
+    // print(header);
     await _channel
         .invokeMethod<dynamic>(_METHOD_CHANNEL_CREATE, <String, dynamic>{
       'url': url,
@@ -60,13 +58,13 @@ class WebsocketManager {
   /// call [onMessage] or [onClose] functions, providing a callback function,
   /// to be able to listen data sent from the server and a done event.
   Future<void> connect() async {
-    await _channel.invokeMethod<dynamic>(_METHOD_CHANNEL_CONNECT);
     _onMessage();
+    await _channel.invokeMethod<dynamic>(_METHOD_CHANNEL_CONNECT);
   }
 
   /// Closes the web socket connection.
   void close() {
-    // _keepAlive = false;
+    _eventsMessage = null;
     if (_onMessageSubscription != null) {
       _onMessageSubscription.cancel();
       _onMessageSubscription = null;
@@ -94,12 +92,6 @@ class WebsocketManager {
     _messageCallback = callback;
     _startMessageServices().then((_) {
       _onMessage();
-      _onMessageSubscription = _eventsMessage
-          .listen(_messageListener, onError: (dynamic e) {}, onDone: () {
-        if (_closeCallback != null) {
-          _closeCallback('CLOSED');
-        }
-      }, cancelOnError: true);
     });
   }
 
@@ -114,7 +106,6 @@ class WebsocketManager {
     _closeCallback = callback;
     _startCloseServices().then((_) {
       _onClose();
-      _onCloseSubscription = _eventsClose.listen(_closeListener);
     });
   }
 
@@ -124,11 +115,10 @@ class WebsocketManager {
   }
 
   void _onMessage() {
-    // _keepAlive = true;
     if (_eventsMessage == null) {
       _eventsMessage =
           _eventChannelMessage.receiveBroadcastStream().asBroadcastStream();
-      _eventsMessage.listen(_messageListener);
+      _onMessageSubscription = _eventsMessage.listen(_messageListener);
     }
   }
 
@@ -140,19 +130,19 @@ class WebsocketManager {
   void _onClose() {
     if (_eventsClose == null) {
       _eventsClose = _eventChannelClose.receiveBroadcastStream();
-      _eventsClose.listen(_closeListener);
+      _onCloseSubscription = _eventsClose.listen(_closeListener);
     }
   }
 
   void _messageListener(dynamic message) {
-    print('Received message: $message');
+    // print('Received message: $message');
     if (_messageCallback != null) {
       _messageCallback(message);
     }
   }
 
   void _closeListener(dynamic message) {
-    print(message);
+    // print(message);
     if (_closeCallback != null) {
       _closeCallback(message);
     }

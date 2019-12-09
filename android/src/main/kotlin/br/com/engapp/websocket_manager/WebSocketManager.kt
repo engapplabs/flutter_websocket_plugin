@@ -28,13 +28,13 @@ class StreamWebSocketManager(private val activity: Activity): WebSocketListener(
     var enableRetries: Boolean = true
 
     init {
-        print(">>> Stream Manager Instantiated")
-        Log.i("StreamWebSocketManager",">>> Stream Manager Instantiated")
+        // print(">>> Stream Manager Instantiated")
+        // Log.i("StreamWebSocketManager",">>> Stream Manager Instantiated")
     }
 
     override fun onOpen(webSocket: WebSocket, response: Response) {
-        Log.i("StreamWebSocketManager","onOpen")
-        Log.i("StreamWebSocketManager","is open callback null? ${openCallback == null}")
+        // Log.i("StreamWebSocketManager","onOpen")
+        // Log.i("StreamWebSocketManager","is open callback null? ${openCallback == null}")
         if(openCallback != null) {
             activity.runOnUiThread {
                 openCallback!!(response.message)
@@ -42,7 +42,7 @@ class StreamWebSocketManager(private val activity: Activity): WebSocketListener(
         }
     }
     override fun onMessage(webSocket: WebSocket, text: String) {
-        Log.i("StreamWebSocketManager","onMessage text")
+        // Log.i("StreamWebSocketManager","onMessage text")
         if(messageCallback != null) {
             activity.runOnUiThread {
                 messageCallback!!(text)
@@ -51,19 +51,19 @@ class StreamWebSocketManager(private val activity: Activity): WebSocketListener(
     }
 
     override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
-        Log.i("StreamWebSocketManager","onMessage bytes")
+        // Log.i("StreamWebSocketManager","onMessage bytes")
         //
     }
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-        Log.i("StreamWebSocketManager","🐞 onFailure")
-        Log.i("StreamWebSocketManager","🐞 ${t.message}")
+        // Log.i("StreamWebSocketManager","🐞 onFailure")
+        // Log.i("StreamWebSocketManager","🐞 ${t.message}")
         t.printStackTrace()
         ws?.close(1000,null)
     }
 
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
-        Log.i("StreamWebSocketManager","onClosing")
+        // Log.i("StreamWebSocketManager","onClosing")
         activity.runOnUiThread {
             if(this.enableRetries) {
                 this.connect()
@@ -76,21 +76,21 @@ class StreamWebSocketManager(private val activity: Activity): WebSocketListener(
     }
 
     fun echoTest() {
-        Log.i("StreamWebSocketManager","init echoTest")
+        // Log.i("StreamWebSocketManager","init echoTest")
         var messageNum = 0
         fun send() {
             messageNum+=1
             val msg = "$messageNum: ${Date()}"
-            print("send: $msg")
-            Log.i("StreamWebSocketManager","send: $msg")
+            // print("send: $msg")
+            // Log.i("StreamWebSocketManager","send: $msg")
             ws?.send(msg)
         }
         openCallback = fun (text: String): Unit {
             send()
         }
         messageCallback = fun (text: String): Unit {
-            print("recv: $text")
-            Log.i("StreamWebSocketManager","recv: $text")
+            // print("recv: $text")
+            // Log.i("StreamWebSocketManager","recv: $text")
             if(messageNum == 10) {
                 ws?.close(1000,null)
             } else {
@@ -98,8 +98,8 @@ class StreamWebSocketManager(private val activity: Activity): WebSocketListener(
             }
         }
         closeCallback = fun (text: String): Unit {
-            print("close $text")
-            Log.i("StreamWebSocketManager","close $text")
+            // print("close $text")
+            // Log.i("StreamWebSocketManager","close $text")
         }
 
         url = "wss://echo.websocket.org"
@@ -112,20 +112,20 @@ class StreamWebSocketManager(private val activity: Activity): WebSocketListener(
     }
 
     fun connect() {
-        Log.i("StreamWebSocketManager","Trying to connect")
+        // Log.i("StreamWebSocketManager","Trying to connect")
         val reqBuilder: Request.Builder = Request.Builder().url(url!!)
         if(header != null) {
-            Log.i("StreamWebSocketManager","has headers")
+            // Log.i("StreamWebSocketManager","has headers")
             for(key in header!!.keys) {
                 val value: String = (header!![key])!!
                 reqBuilder.addHeader(key, value)
             }
         } else {
-            Log.i("StreamWebSocketManager","has no headers")
+            // Log.i("StreamWebSocketManager","has no headers")
         }
         val req: Request = reqBuilder.build()
-        Log.i("StreamWebSocketManager","method: ${req.method}")
-        Log.i("StreamWebSocketManager","url: ${req.url}")
+        // Log.i("StreamWebSocketManager","method: ${req.method}")
+        // Log.i("StreamWebSocketManager","url: ${req.url}")
         ws = client.newWebSocket(req,this)
 //        client.dispatcher.executorService.shutdown()
     }
@@ -135,8 +135,8 @@ class StreamWebSocketManager(private val activity: Activity): WebSocketListener(
     }
 
     fun send(msg: String) {
-        Log.i("StreamWebSocketManager","⭕️ -> sending $msg")
-        Log.i("StreamWebSocketManager","⭕️ -> ws is null? ${ws == null}")
+        // Log.i("StreamWebSocketManager","⭕️ -> sending $msg")
+        // Log.i("StreamWebSocketManager","⭕️ -> ws is null? ${ws == null}")
         ws?.send(msg)
     }
 }

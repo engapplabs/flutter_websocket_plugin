@@ -13,19 +13,18 @@ public class SwiftWebsocketManagerPlugin: NSObject, FlutterPlugin {
     let closeStreamHandler = EventStreamHandler()
     let statusStreamHandler = EventStreamHandler()
     let streamWebSocketManager = StreamWebSocketManager()
-    
-  public static func register(with registrar: FlutterPluginRegistrar) {
-    let channel = FlutterMethodChannel(name: "websocket_manager", binaryMessenger: registrar.messenger())
-    let instance = SwiftWebsocketManagerPlugin()
-    registrar.addMethodCallDelegate(instance, channel: channel)
-    
-    instance.eventChannelRegister(registrar)
-    
-    registrar.addApplicationDelegate(instance)
-  }
-    
+
+    public static func register(with registrar: FlutterPluginRegistrar) {
+        let channel = FlutterMethodChannel(name: "websocket_manager", binaryMessenger: registrar.messenger())
+        let instance = SwiftWebsocketManagerPlugin()
+        registrar.addMethodCallDelegate(instance, channel: channel)
+
+        instance.eventChannelRegister(registrar)
+
+        registrar.addApplicationDelegate(instance)
+    }
+
     func eventChannelRegister(_ registrar: FlutterPluginRegistrar) {
-        
         // Stream setup
         FlutterEventChannel(name: ChannelName.onMessage, binaryMessenger: registrar.messenger())
             .setStreamHandler(messageStreamHandler)
@@ -33,69 +32,67 @@ public class SwiftWebsocketManagerPlugin: NSObject, FlutterPlugin {
             .setStreamHandler(closeStreamHandler)
         FlutterEventChannel(name: ChannelName.status, binaryMessenger: registrar.messenger())
             .setStreamHandler(statusStreamHandler)
-
     }
 
-  public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-    if(call.method == "create"){
-        let arguments = call.arguments as! Dictionary<String, Any>
-        let url = arguments["url"] as! String
-        print(url)
-        let header = arguments["header"] as? Dictionary<String, String>
-        print(header as Any)
-        var enableRetries = arguments["enableRetries"] as? Bool
-        if(enableRetries == nil) {
-            enableRetries = true
+    public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        if call.method == "create" {
+            let arguments = call.arguments as! [String: Any]
+            let url = arguments["url"] as! String
+            // print(url)
+            let header = arguments["header"] as? [String: String]
+            // print(header as Any)
+            var enableRetries = arguments["enableRetries"] as? Bool
+            if enableRetries == nil {
+                enableRetries = true
+            }
+            streamWebSocketManager.create(url: url, header: header, enableCompression: arguments["enableCompression"] as? Bool, disableSSL: arguments["disableSSL"] as? Bool,
+                                          enableRetries: enableRetries!)
+
+            streamWebSocketManager.closeCallback = closeHandler
+            streamWebSocketManager.onClose()
+            result("")
+        } else if call.method == "connect" {
+            streamWebSocketManager.connect()
+            result("")
+        } else if call.method == "disconnect" {
+            streamWebSocketManager.disconnect()
+            result("")
+        } else if call.method == "send" {
+            let message = call.arguments as! String
+            // print(message)
+            streamWebSocketManager.send(string: message)
+            result("")
+        } else if call.method == "autoRetry" {
+            var retry = call.arguments as? Bool
+            if retry == nil {
+                retry = true
+            }
+            streamWebSocketManager.enableRetries = retry!
+            result("")
+        } else if call.method == "echoTest" {
+            streamWebSocketManager.echoTest()
+            result("")
+        } else if call.method == "onMessage" {
+            streamWebSocketManager.closeCallback = closeHandler
+            streamWebSocketManager.onClose()
+
+            streamWebSocketManager.messageCallback = resultHander
+            streamWebSocketManager.onText()
+            // print("listening")
+            result("")
+        } else if call.method == "onDone" {
+            streamWebSocketManager.closeCallback = closeHandler
+            streamWebSocketManager.onClose()
+            result("")
         }
-        streamWebSocketManager.create(url: url, header: header, enableCompression: arguments["enableCompression"] as? Bool, disableSSL: arguments["disableSSL"] as? Bool,
-          enableRetries: enableRetries!)
-        
-        streamWebSocketManager.closeCallback = closeHandler
-        streamWebSocketManager.onClose()
     }
-    else if(call.method == "connect") {
-        streamWebSocketManager.connect()
+
+    func resultHander(msg: String) {
+        messageStreamHandler.send(data: msg)
     }
-    else if(call.method == "disconnect") {
-        streamWebSocketManager.disconnect()
+
+    func closeHandler(msg: String) {
+        // print("closed \(msg)")
+        closeStreamHandler.send(data: msg)
     }
-    else if(call.method == "send") {
-        let message = call.arguments as! String
-        print(message)
-        streamWebSocketManager.send(string: message)
-    }
-    else if(call.method == "autoRetry") {
-        var retry = call.arguments as? Bool
-        if(retry == nil) {
-            retry = true
-        }
-        streamWebSocketManager.enableRetries = retry!
-    }
-    else if(call.method == "echoTest"){
-        streamWebSocketManager.echoTest()
-        result("")
-    }
-    else if(call.method == "onMessage"){
-        streamWebSocketManager.closeCallback = closeHandler
-        streamWebSocketManager.onClose()
-        
-        streamWebSocketManager.messageCallback = resultHander
-        streamWebSocketManager.onText()
-        print("listening")
-        result("")
-    }
-    else if(call.method == "onDone"){
-        streamWebSocketManager.closeCallback = closeHandler
-        streamWebSocketManager.onClose()
-        result("")
-    }
-  }
-    
-  func resultHander(msg: String) -> Void{
-      self.messageStreamHandler.send(data: msg)
-  }
-  func closeHandler(msg: String) -> Void{
-      print("closed \(msg)")
-      self.closeStreamHandler.send(data: msg)
-  }
 }
