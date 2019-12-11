@@ -85,7 +85,7 @@ class _MyAppState extends State<MyApp> {
                 ),
                 RaisedButton(
                   child: Text('ECHO TEST'),
-                  onPressed: () => WebsocketManager.echoText(),
+                  onPressed: () => WebsocketManager.echoTest(),
                 ),
               ],
             ),
