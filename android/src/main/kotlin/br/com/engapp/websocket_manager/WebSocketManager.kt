@@ -131,6 +131,7 @@ class StreamWebSocketManager(private val activity: Activity): WebSocketListener(
     }
 
     fun disconnect() {
+        enableRetries = false
         ws?.close(1000,null)
     }
 
