@@ -13,10 +13,13 @@ jobs:
         java-version: '12.x'
     - uses: subosito/flutter-action@v1
       with:
-        flutter-version: '1.7.8+hotfix.6'
-    - run: cd example
+        channel: 'stable'
     - run: flutter pub get
     - run: flutter test
+    - run: |
+        cd example
+        flutter pub get
+        flutter test
 #     - run: flutter build apk --release
 #     - name: Create a Release APK
 #       uses: ncipollo/release-action@v1
