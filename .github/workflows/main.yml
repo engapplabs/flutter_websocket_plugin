@@ -14,9 +14,12 @@ jobs:
     - uses: subosito/flutter-action@v1
       with:
         channel: 'stable'
-    - run: cd example
     - run: flutter pub get
     - run: flutter test
+    - run: |
+        cd example
+        flutter pub get
+        flutter test
 #     - run: flutter build apk --release
 #     - name: Create a Release APK
 #       uses: ncipollo/release-action@v1
