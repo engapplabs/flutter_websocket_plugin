@@ -30,14 +30,16 @@ class MethodName {
     const val ON_MESSAGE = "onMessage"
     const val ON_DONE = "onDone"
     const val TEST_ECHO = "echoTest"
+    const val LISTEN_MESSAGE = "listen/message"
+    const val LISTEN_CLOSE = "listen/close"
   }
 }
 
 class WebsocketManagerPlugin(registrar: Registrar): MethodCallHandler {
   private var methodChannel: MethodChannel? = null
 
-  private val messageStreamHandler = EventStreamHandler(this::onCancelCallback)
-  private val closeStreamHandler = EventStreamHandler(this::onCancelCallback)
+  private var messageStreamHandler:EventStreamHandler? = null // = EventStreamHandler(this::onCancelCallback)
+  private var closeStreamHandler:EventStreamHandler? = null // = EventStreamHandler(this::onCancelCallback)
   private val websocketManager = StreamWebSocketManager(registrar.activity())
 
   private fun setupChannels(messenger: BinaryMessenger, context: Context) {
@@ -45,10 +47,13 @@ class WebsocketManagerPlugin(registrar: Registrar): MethodCallHandler {
     methodChannel = MethodChannel(messenger, ChannelName.PLUGIN_NAME)
     methodChannel!!.setMethodCallHandler(this)
 
+    messageStreamHandler = EventStreamHandler(this::onListenMessageCallback, this::onCancelCallback)
+    closeStreamHandler = EventStreamHandler(this::onListenCloseCallback, this::onCancelCallback)
+
     val messageChannel = EventChannel(messenger, ChannelName.MESSAGE)
-    messageChannel.setStreamHandler(messageStreamHandler)
+    messageChannel.setStreamHandler(messageStreamHandler!!)
     val doneChannel = EventChannel(messenger, ChannelName.DONE)
-    doneChannel.setStreamHandler(closeStreamHandler)
+    doneChannel.setStreamHandler(closeStreamHandler!!)
   }
 
   init {
@@ -75,11 +80,11 @@ class WebsocketManagerPlugin(registrar: Registrar): MethodCallHandler {
         websocketManager.create(url!!, header)
         websocketManager.messageCallback = fun (msg: String) {
           // Log.i("WebsocketManagerPlugin","sending $msg")
-          messageStreamHandler.send(msg)
+          messageStreamHandler!!.send(msg)
         }
         websocketManager.closeCallback = fun (msg: String) {
           // print("closed $msg")
-          closeStreamHandler.send(msg)
+          closeStreamHandler!!.send(msg)
         }
         result.success("")
       }
@@ -107,14 +112,14 @@ class WebsocketManagerPlugin(registrar: Registrar): MethodCallHandler {
       MethodName.ON_MESSAGE -> {
         websocketManager.messageCallback = fun (msg: String) {
           // Log.i("WebsocketManagerPlugin","sending $msg")
-          messageStreamHandler.send(msg)
+          messageStreamHandler!!.send(msg)
         }
         result.success("")
       }
       MethodName.ON_DONE -> {
         websocketManager.closeCallback = fun (msg: String) {
           // print("closed $msg")
-          closeStreamHandler.send(msg)
+          closeStreamHandler!!.send(msg)
         }
         result.success("")
       }
@@ -127,6 +132,12 @@ class WebsocketManagerPlugin(registrar: Registrar): MethodCallHandler {
     }
   }
 
+  private fun onListenMessageCallback(){
+    methodChannel!!.invokeMethod(MethodName.LISTEN_MESSAGE,null)
+  }
+  private fun onListenCloseCallback(){
+    methodChannel!!.invokeMethod(MethodName.LISTEN_CLOSE,null)
+  }
   private fun onCancelCallback(){
     //
   }

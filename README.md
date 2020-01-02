@@ -1,10 +1,12 @@
 # Websocket Manager
 
-A Flutter plugin for Android and iOS supports websockets. This plugin is based on two different native libraries [Starscrem](https://github.com/daltoniam/Starscream) for iOS and [okHttp](https://medium.com/@ssaurel/learn-to-use-websockets-on-android-with-okhttp-ba5f00aea988) for Android
+A Flutter plugin for Android and iOS supports websockets. This plugin is based on two different native libraries [Starscream](https://github.com/daltoniam/Starscream) for iOS and [okHttp](https://medium.com/@ssaurel/learn-to-use-websockets-on-android-with-okhttp-ba5f00aea988) for Android.
+
+This plugin was created due to our necessity to maintain a WebSocket connection active in background while [Flutter's WebSocket](https://flutter.dev/docs/cookbook/networking/web-sockets) from cookbook doesn't keep alive while screen is locked or the application was in background.
 
 ## Introduction
 
-**Websocket Manager** doesn't manipulate images in Dart codes directly, instead, the plugin uses Platform Channel to expose Dart APIs that Flutter application can use to communicate with two very powerful websocket native libraries. Because of that, all credits belong to these libraries.
+**Websocket Manager** doesn't manipulate websockets in Dart codes directly, instead, the plugin uses Platform Channel to expose Dart APIs that Flutter application can use to communicate with two very powerful websocket native libraries. Because of that, all credits belong to these libraries.
 
 ## How to install
 
@@ -69,4 +71,4 @@ socket.connect();
 ## Credits
 
 - Android: [okHttp](https://medium.com/@ssaurel/learn-to-use-websockets-on-android-with-okhttp-ba5f00aea988) created by [Square](https://github.com/square)
-- iOS: [Starscrem](https://github.com/daltoniam/Starscream) created by [daltoniam](https://github.com/daltoniam)
+- iOS: [Starscream](https://github.com/daltoniam/Starscream) created by [daltoniam](https://github.com/daltoniam)

@@ -4,10 +4,11 @@ import android.content.Intent
 import android.util.Log
 import io.flutter.plugin.common.EventChannel
 
-class EventStreamHandler(onCancelCallback: () -> Unit) : EventChannel.StreamHandler {
+class EventStreamHandler(onNullSink:()->Unit, onCancelCallback: () -> Unit) : EventChannel.StreamHandler {
 
     private var sink: EventChannel.EventSink? = null
 
+    private val onNullSink = onCancelCallback
     private val onCancelCallback = onCancelCallback
 
 //    override fun onReceive(context: Context?, intent: Intent?) {
@@ -43,6 +44,7 @@ class EventStreamHandler(onCancelCallback: () -> Unit) : EventChannel.StreamHand
             }
         } else {
             Log.i("EventStreamHandler", "❌ sink is null")
+            onNullSink()
         }
     }
 }
