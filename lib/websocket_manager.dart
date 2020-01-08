@@ -42,7 +42,7 @@ class WebsocketManager {
 
   Future<void> _create() async {
     _channel.setMethodCallHandler((MethodCall call) {
-      switch(call.method) {
+      switch (call.method) {
         case 'listen/message':
           _onMessage();
           break;
@@ -73,17 +73,18 @@ class WebsocketManager {
   }
 
   /// Closes the web socket connection.
-  void close() {
+  Future<void> close() async {
+    await _channel.invokeMethod<String>(_METHOD_CHANNEL_DISCONNECT);
     _eventsMessage = null;
     if (_onMessageSubscription != null) {
       _onMessageSubscription.cancel();
       _onMessageSubscription = null;
     }
-    if (_onCloseSubscription != null) {
-      _onCloseSubscription.cancel();
-      _onCloseSubscription = null;
-    }
-    _channel.invokeMethod<String>(_METHOD_CHANNEL_DISCONNECT);
+//    _eventsClose = null;
+//    if (_onCloseSubscription != null) {
+//      _onCloseSubscription.cancel();
+//      _onCloseSubscription = null;
+//    }
   }
 
   /// Send a [String] message to the connected WebSocket.
@@ -145,14 +146,14 @@ class WebsocketManager {
   }
 
   void _messageListener(dynamic message) {
-    // print('Received message: $message');
+    print('Received message: $message');
     if (_messageCallback != null) {
       _messageCallback(message);
     }
   }
 
   void _closeListener(dynamic message) {
-    // print(message);
+    print(message);
     if (_closeCallback != null) {
       _closeCallback(message);
     }

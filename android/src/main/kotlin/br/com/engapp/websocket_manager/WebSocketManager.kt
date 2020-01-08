@@ -33,7 +33,7 @@ class StreamWebSocketManager(private val activity: Activity): WebSocketListener(
     }
 
     override fun onOpen(webSocket: WebSocket, response: Response) {
-        // Log.i("StreamWebSocketManager","onOpen")
+        Log.i("StreamWebSocketManager","onOpen")
         // Log.i("StreamWebSocketManager","is open callback null? ${openCallback == null}")
         if(openCallback != null) {
             activity.runOnUiThread {
@@ -42,7 +42,7 @@ class StreamWebSocketManager(private val activity: Activity): WebSocketListener(
         }
     }
     override fun onMessage(webSocket: WebSocket, text: String) {
-        // Log.i("StreamWebSocketManager","onMessage text")
+        Log.i("StreamWebSocketManager","onMessage text")
         if(messageCallback != null) {
             activity.runOnUiThread {
                 messageCallback!!(text)
@@ -51,19 +51,19 @@ class StreamWebSocketManager(private val activity: Activity): WebSocketListener(
     }
 
     override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
-        // Log.i("StreamWebSocketManager","onMessage bytes")
+        Log.i("StreamWebSocketManager","onMessage bytes")
         //
     }
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-        // Log.i("StreamWebSocketManager","🐞 onFailure")
+        Log.i("StreamWebSocketManager","🐞 onFailure")
         // Log.i("StreamWebSocketManager","🐞 ${t.message}")
         t.printStackTrace()
         ws?.close(1000,null)
     }
 
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
-        // Log.i("StreamWebSocketManager","onClosing")
+        Log.i("StreamWebSocketManager","onClosing")
         activity.runOnUiThread {
             if(this.enableRetries) {
                 this.connect()

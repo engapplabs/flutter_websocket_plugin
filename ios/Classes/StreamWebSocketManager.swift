@@ -89,7 +89,7 @@ class StreamWebSocketManager: NSObject, WebSocketDelegate {
 
     func onClose() {
         ws?.onDisconnect = { (error: Error?) in
-            // print("close \(String(describing: error).debugDescription)")
+             print("close \(String(describing: error).debugDescription)")
             if self.enableRetries {
                 self.connect()
             } else {
@@ -102,9 +102,13 @@ class StreamWebSocketManager: NSObject, WebSocketDelegate {
                             // print("Error message: \((error as! WSError).message)")
                         }
                         (self.closeCallback!)("false")
+                        print("close callback calling false")
                     } else {
                         (self.closeCallback!)("true")
+                        print("close callback calling true")
                     }
+                } else {
+                    print("close callback is nil")
                 }
             }
         }

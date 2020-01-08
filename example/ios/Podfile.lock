@@ -6,7 +6,7 @@ PODS:
     - Starscream (~> 3.1.1)
 
 DEPENDENCIES:
-  - Flutter (from `.symlinks/flutter/ios-release`)
+  - Flutter (from `.symlinks/flutter/ios`)
   - websocket_manager (from `.symlinks/plugins/websocket_manager/ios`)
 
 SPEC REPOS:
@@ -15,7 +15,7 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   Flutter:
-    :path: ".symlinks/flutter/ios-release"
+    :path: ".symlinks/flutter/ios"
   websocket_manager:
     :path: ".symlinks/plugins/websocket_manager/ios"
 

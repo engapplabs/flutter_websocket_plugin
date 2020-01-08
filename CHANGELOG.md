@@ -1,3 +1,11 @@
+## 0.2.0 [2019-12-12]
+
+* Updates okHttp plugin.
+
+## 0.1.3 [2019-12-12]
+
+* Fix bug where the close event channel is closed before sending close event.
+
 ## 0.1.2 [2019-12-12]
 
 * Calls flutter when there are no listeners to an event channel in order to keep a listener.
