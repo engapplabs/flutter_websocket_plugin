@@ -50,6 +50,7 @@ class WebsocketManager {
           _onClose();
           break;
       }
+      return;
     });
     // print(url);
     // print(header);
