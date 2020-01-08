@@ -56,7 +56,7 @@ class StreamWebSocketManager(private val activity: Activity): WebSocketListener(
     }
 
     override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-        Log.i("StreamWebSocketManager","🐞 onFailure")
+        Log.i("StreamWebSocketManager","🐞 onFailure ${t.message}")
         // Log.i("StreamWebSocketManager","🐞 ${t.message}")
         t.printStackTrace()
         activity.runOnUiThread {
