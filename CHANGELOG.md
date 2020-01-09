@@ -1,6 +1,7 @@
 ## 0.2.0 [2019-12-12]
 
 * Updates okHttp plugin.
+* Fix bug on a Android failure event that wasn't treated correct.
 
 ## 0.1.3 [2019-12-12]
 

@@ -1,6 +1,6 @@
 name: websocket_manager
 description: A Flutter plugin for Android and iOS supports websocket connection
-version: 0.2.3
+version: 0.2.0
 author: Luan Almeida <luanhssa@gmail.com>
 homepage: https://github.com/engapplabs/flutter_websocket_plugin
 
