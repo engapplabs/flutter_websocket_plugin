@@ -147,7 +147,7 @@ class WebsocketManager {
   }
 
   void _messageListener(dynamic message) {
-    print('Received message: $message');
+    // print('Received message: $message');
     if (_messageCallback != null) {
       _messageCallback(message);
     }
