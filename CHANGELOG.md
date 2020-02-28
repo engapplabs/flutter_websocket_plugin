@@ -1,4 +1,4 @@
-## 0.2.02 [2020-02-28]
+## 0.2.2 [2020-02-28]
 
 * Migrate to the new android embedding.
 * Bump Flutter SDK to 1.12.13+hotfix.5 or greater.
