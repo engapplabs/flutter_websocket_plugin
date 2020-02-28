@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../example/android/android.iml" filepath="$PROJECT_DIR$/../example/android/android.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../example/android/app/app.iml" filepath="$PROJECT_DIR$/../example/android/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/websocket_manager.iml" filepath="$PROJECT_DIR$/websocket_manager.iml" />
+      <module fileurl="file://$PROJECT_DIR$/websocket_manager.iml" filepath="$PROJECT_DIR$/websocket_manager.iml" group="websocket_manager" />
     </modules>
   </component>
 </project>
