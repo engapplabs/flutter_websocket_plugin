@@ -1,3 +1,8 @@
+## 0.2.02 [2020-02-28]
+
+* Migrate to the new android embedding.
+* Bump Flutter SDK to 1.12.13+hotfix.5 or greater.
+
 ## 0.2.0 [2019-12-12]
 
 * Updates okHttp plugin.

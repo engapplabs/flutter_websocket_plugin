@@ -1,19 +1,16 @@
 package br.com.engapp.websocket_manager
 
-import android.app.Activity
-import android.app.IntentService
-import android.util.Log
-import okhttp3.WebSocket
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.WebSocketListener
-import java.util.*
-import okhttp3.Response
+import android.os.Handler
+import android.os.Looper
+import okhttp3.*
 import okio.ByteString
+import java.util.*
 
 
-class StreamWebSocketManager(private val activity: Activity): WebSocketListener() {
+class StreamWebSocketManager: WebSocketListener() {
 
+
+    private val uiThreadHandler: Handler = Handler(Looper.getMainLooper())
     private var ws: WebSocket? = null
     private val client = OkHttpClient()
     private var url: String? = null
@@ -36,7 +33,7 @@ class StreamWebSocketManager(private val activity: Activity): WebSocketListener(
         // Log.i("StreamWebSocketManager","onOpen")
         // Log.i("StreamWebSocketManager","is open callback null? ${openCallback == null}")
         if(openCallback != null) {
-            activity.runOnUiThread {
+            uiThreadHandler.post {
                 openCallback!!(response.message)
             }
         }
@@ -44,7 +41,7 @@ class StreamWebSocketManager(private val activity: Activity): WebSocketListener(
     override fun onMessage(webSocket: WebSocket, text: String) {
         // Log.i("StreamWebSocketManager","onMessage text")
         if(messageCallback != null) {
-            activity.runOnUiThread {
+            uiThreadHandler.post {
                 messageCallback!!(text)
             }
         }
@@ -59,9 +56,9 @@ class StreamWebSocketManager(private val activity: Activity): WebSocketListener(
         // Log.i("StreamWebSocketManager","🐞📀 onFailure ${t.message}")
         // Log.i("StreamWebSocketManager","🐞 ${t.message}")
         t.printStackTrace()
-        activity.runOnUiThread {
-            // Log.i("StreamWebSocketManager","🐞 closeCallback ${closeCallback != null}")
-            if (closeCallback != null) {
+        // Log.i("StreamWebSocketManager","🐞 closeCallback ${closeCallback != null}")
+        if (closeCallback != null) {
+            uiThreadHandler.post {
                 closeCallback!!("true")
             }
         }
@@ -69,10 +66,10 @@ class StreamWebSocketManager(private val activity: Activity): WebSocketListener(
 
     override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
         // Log.i("StreamWebSocketManager","onClosing")
-        activity.runOnUiThread {
-            if(this.enableRetries) {
-                this.connect()
-            } else {
+        if(this.enableRetries) {
+            this.connect()
+        } else {
+            uiThreadHandler.post {
                 if (closeCallback != null) {
                     closeCallback!!("false")
                 }
@@ -125,9 +122,10 @@ class StreamWebSocketManager(private val activity: Activity): WebSocketListener(
                 val value: String = (header!![key])!!
                 reqBuilder.addHeader(key, value)
             }
-        } else {
-            //  Log.i("StreamWebSocketManager","has no headers")
         }
+//        else {
+//            //  Log.i("StreamWebSocketManager","has no headers")
+//        }
         val req: Request = reqBuilder.build()
         //  Log.i("StreamWebSocketManager","method: ${req.method}")
         //  Log.i("StreamWebSocketManager","url: ${req.url}")

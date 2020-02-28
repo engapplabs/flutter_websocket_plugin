@@ -2,141 +2,67 @@ package br.com.engapp.websocket_manager
 
 import EventStreamHandler
 import android.content.Context
-import android.util.Log
+import br.com.engapp.websocket_manager.models.ChannelName
+import br.com.engapp.websocket_manager.models.MethodName
+import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.embedding.engine.plugins.FlutterPlugin.FlutterPluginBinding
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.EventChannel
-import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
-import io.flutter.plugin.common.MethodChannel.MethodCallHandler
-import io.flutter.plugin.common.MethodChannel.Result
 import io.flutter.plugin.common.PluginRegistry.Registrar
 
-class ChannelName {
-  companion object {
-    const val PLUGIN_NAME = "websocket_manager"
-    const val MESSAGE = "websocket_manager/message"
-    const val DONE = "websocket_manager/done"
-  }
-}
 
-class MethodName {
-  companion object {
-    const val PLATFORM_VERSION = "getPlatformVersion"
-    const val CREATE = "create"
-    const val CONNECT = "connect"
-    const val DISCONNECT = "disconnect"
-    const val SEND_MESSAGE = "send"
-    const val AUTO_RETRY = "autoRetry"
-    const val ON_MESSAGE = "onMessage"
-    const val ON_DONE = "onDone"
-    const val TEST_ECHO = "echoTest"
-    const val LISTEN_MESSAGE = "listen/message"
-    const val LISTEN_CLOSE = "listen/close"
-  }
-}
-
-class WebsocketManagerPlugin(registrar: Registrar): MethodCallHandler {
+class WebsocketManagerPlugin: FlutterPlugin {
   private var methodChannel: MethodChannel? = null
 
-  private var messageStreamHandler:EventStreamHandler? = null // = EventStreamHandler(this::onCancelCallback)
-  private var closeStreamHandler:EventStreamHandler? = null // = EventStreamHandler(this::onCancelCallback)
-  private val websocketManager = StreamWebSocketManager(registrar.activity())
+  private var messageChannel: EventChannel? = null
+  private var doneChannel: EventChannel? = null
+  private val messageStreamHandler = EventStreamHandler(this::onListenMessageCallback, this::onCancelCallback)
+  private val closeStreamHandler = EventStreamHandler(this::onListenCloseCallback, this::onCancelCallback)
 
-  private fun setupChannels(messenger: BinaryMessenger, context: Context) {
-
-    methodChannel = MethodChannel(messenger, ChannelName.PLUGIN_NAME)
-    methodChannel!!.setMethodCallHandler(this)
-
-    messageStreamHandler = EventStreamHandler(this::onListenMessageCallback, this::onCancelCallback)
-    closeStreamHandler = EventStreamHandler(this::onListenCloseCallback, this::onCancelCallback)
-
-    val messageChannel = EventChannel(messenger, ChannelName.MESSAGE)
-    messageChannel.setStreamHandler(messageStreamHandler!!)
-    val doneChannel = EventChannel(messenger, ChannelName.DONE)
-    doneChannel.setStreamHandler(closeStreamHandler!!)
-  }
-
-  init {
-    Log.i("WebsocketManagerPlugin","init 🤪")
-    setupChannels(registrar.messenger(), registrar.activeContext())
-  }
-
+  /** Plugin registration.  */
   companion object {
     @JvmStatic
     fun registerWith(registrar: Registrar) {
-      WebsocketManagerPlugin(registrar)
+      val plugin = WebsocketManagerPlugin()
+      plugin.setupChannels(registrar.messenger(), registrar.context())
     }
   }
 
-  override fun onMethodCall(call: MethodCall, result: Result) {
-    // Log.i("WebsocketManagerPlugin","Calling: ${call.method}")
-    when (call.method) {
-      MethodName.PLATFORM_VERSION -> result.success("Android ${android.os.Build.VERSION.RELEASE}")
-      MethodName.CREATE -> {
-        val url: String? = call.argument<String>("url")
-        val header:Map<String,String>? = call.argument<Map<String,String>>("header")
-        // Log.i("WebsocketManagerPlugin","url: $url")
-        // Log.i("WebsocketManagerPlugin","header: $header")
-        websocketManager.create(url!!, header)
-        websocketManager.messageCallback = fun (msg: String) {
-          // Log.i("WebsocketManagerPlugin","sending $msg")
-          messageStreamHandler!!.send(msg)
-        }
-        websocketManager.closeCallback = fun (msg: String) {
-          // print("closed $msg")
-          closeStreamHandler!!.send(msg)
-        }
-        result.success("")
-      }
-      MethodName.CONNECT -> {
-        websocketManager.connect()
-        result.success("")
-      }
-      MethodName.DISCONNECT -> {
-        websocketManager.disconnect()
-        result.success("")
-      }
-      MethodName.SEND_MESSAGE -> {
-        val message: String = call.arguments()!!
-        websocketManager.send(message)
-        result.success("")
-      }
-      MethodName.AUTO_RETRY -> {
-        var retry:Boolean? = call.arguments()
-        if(retry == null) {
-          retry = true
-        }
-        websocketManager.enableRetries = retry
-        result.success("")
-      }
-      MethodName.ON_MESSAGE -> {
-        websocketManager.messageCallback = fun (msg: String) {
-          // Log.i("WebsocketManagerPlugin","sending $msg")
-          messageStreamHandler!!.send(msg)
-        }
-        result.success("")
-      }
-      MethodName.ON_DONE -> {
-        websocketManager.closeCallback = fun (msg: String) {
-          // print("closed $msg")
-          closeStreamHandler!!.send(msg)
-        }
-        result.success("")
-      }
-      MethodName.TEST_ECHO -> {
-        websocketManager.echoTest()
-        // Log.i("WebsocketManagerPlugin","echo test")
-        result.success("echo test")
-      }
-      else -> result.notImplemented()
-    }
+  override fun onAttachedToEngine(binding: FlutterPluginBinding) {
+    setupChannels(binding.binaryMessenger, binding.applicationContext)
+  }
+
+  override fun onDetachedFromEngine(binding: FlutterPluginBinding) {
+    teardownChannels()
+  }
+
+  private fun setupChannels(messenger: BinaryMessenger, context: Context) {
+
+    val websocketMethodChannel = WebSocketMethodChannelHandler(messageStreamHandler, closeStreamHandler)
+    methodChannel = MethodChannel(messenger, ChannelName.PLUGIN_NAME)
+    methodChannel!!.setMethodCallHandler(websocketMethodChannel)
+
+    messageChannel = EventChannel(messenger, ChannelName.MESSAGE)
+    messageChannel!!.setStreamHandler(messageStreamHandler)
+    doneChannel = EventChannel(messenger, ChannelName.DONE)
+    doneChannel!!.setStreamHandler(closeStreamHandler)
+  }
+
+  private fun teardownChannels() {
+    methodChannel?.setMethodCallHandler(null)
+    messageChannel?.setStreamHandler(null)
+    doneChannel?.setStreamHandler(null)
+    methodChannel = null
+    messageChannel = null
+    doneChannel = null
   }
 
   private fun onListenMessageCallback(){
-    methodChannel!!.invokeMethod(MethodName.LISTEN_MESSAGE,null)
+    methodChannel?.invokeMethod(MethodName.LISTEN_MESSAGE,null)
   }
   private fun onListenCloseCallback(){
-    methodChannel!!.invokeMethod(MethodName.LISTEN_CLOSE,null)
+    methodChannel?.invokeMethod(MethodName.LISTEN_CLOSE,null)
   }
   private fun onCancelCallback(){
     //
