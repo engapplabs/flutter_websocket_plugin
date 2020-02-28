@@ -14,6 +14,7 @@
 *.ipr
 *.iws
 .idea/
+android/.idea/
 
 # Flutter/Dart/Pub related
 **/doc/api/
