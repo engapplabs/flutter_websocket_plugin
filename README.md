@@ -1,3 +1,13 @@
+
+---
+
+**NOTE**: This repository is no longer maintained by ENGAPP. It was moved to be maintained by [Kunlatek](https://github.com/kunlatek/flutter_websocket_manager_plugin) on the following link:
+https://github.com/kunlatek/flutter_websocket_manager_plugin
+
+Any issue regarding this plugin should be reported there. 
+
+---
+
 # Websocket Manager
 
 A Flutter plugin for Android and iOS supports websockets. This plugin is based on two different native libraries [Starscream](https://github.com/daltoniam/Starscream) for iOS and [okHttp](https://medium.com/@ssaurel/learn-to-use-websockets-on-android-with-okhttp-ba5f00aea988) for Android.
