@@ -1,8 +1,7 @@
 
 ---
 
-**NOTE**: This repository is no longer maintained by ENGAPP. It was moved to be maintained by [Kunlatek](https://github.com/kunlatek/flutter_websocket_manager_plugin) on the following link:
-https://github.com/kunlatek/flutter_websocket_manager_plugin
+**NOTE**: This repository is deprecated and no longer maintained
 
 Any issue regarding this plugin should be reported there. 
 
